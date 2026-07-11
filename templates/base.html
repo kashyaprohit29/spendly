@@ -43,5 +43,25 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
+
+    <!-- How it works modal -->
+    <div id="how-it-works-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h2>How Spendly Works</h2>
+            </div>
+            <div class="modal-body">
+                <!-- YouTube video embed -->
+                <div class="video-container">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/VIDEO_ID_HERE"
+                            title="YouTube video player" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
