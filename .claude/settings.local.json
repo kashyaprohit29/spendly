@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "PowerShell(pip install *)",
-      "PowerShell(Get-Process *)"
+      "PowerShell(Get-Process *)",
+      "Bash(git config *)",
+      "Bash(git remote *)"
     ]
   }
 }
