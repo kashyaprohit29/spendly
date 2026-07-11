@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms and Conditions - Spendly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="{{ url_for('landing') }}" class="nav-brand">
+                <span class="brand-icon">◈</span>
+                <span class="brand-name">Spendly</span>
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('login') }}">Sign in</a>
+                <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="terms-section">
+            <div class="terms-inner">
+                <h1>Terms and Conditions</h1>
+
+                <p>Last updated: July 11, 2026</p>
+
+                <h2>1. Acceptance of Terms</h2>
+                <p>By accessing or using Spendly ("the Service"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree with any part of these terms, you may not use the Service.</p>
+
+                <h2>2. Description of Service</h2>
+                <p>Spendly is a personal expense tracking application that allows users to log, track, and analyze their personal expenses. The service is provided "as is" and "as available" without warranties of any kind.</p>
+
+                <h2>3. User Accounts</h2>
+                <p>To access certain features of the Service, you may need to create an account. You are responsible for maintaining the confidentiality of your account and password and for restricting access to your computer. You agree to accept responsibility for all activities that occur under your account.</p>
+
+                <h2>4. User Content</h2>
+                <p>You retain all rights to any data you submit to the Service. By submitting data, you grant Spendly a worldwide, non-exclusive, royalty-free license to use, reproduce, modify, adapt, publish, translate, distribute, and display such data solely in connection with providing the Service.</p>
+
+                <h2>5. Prohibited Conduct</h2>
+                <p>You agree not to use the Service to:</p>
+                <ul>
+                    <li>Violate any applicable laws or regulations</li>
+                    <li>Infringe upon the rights of others</li>
+                    <li>Introduce viruses, malware, or any harmful code</li>
+                    <li>Interfere with or disrupt the Service</li>
+                </ul>
+
+                <h2>6. Disclaimer of Warranties</h2>
+                <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY. TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
+
+                <h2>7. Limitation of Liability</h2>
+                <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL SPENDLY, ITS OFFICERS, DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOOD-WILL, OR OTHER INTANGIBLE LOSSES.</p>
+
+                <h2>8. Governing Law</h2>
+                <p>These Terms shall be governed by and construed in accordance with the laws of India, without regard to its conflict of law principles.</p>
+
+                <h2>9. Changes to Terms</h2>
+                <p>We reserve the right to modify or replace these Terms at any time. If a revision is material, we will provide at least 30 days notice prior to any new terms taking effect.</p>
+
+                <h2>10. Contact Us</h2>
+                <p>If you have any questions about these Terms, please contact us at support@spendly.example.com.</p>
+
+                <div class="terms-footer">
+                    <p>© 2026 Spendly. All rights reserved.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span class="brand-icon">◈</span>
+            <span class="footer-name">Spendly</span>
+            <p class="footer-copy">Track every rupee. Own your finances.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
