@@ -4,7 +4,8 @@
       "PowerShell(pip install *)",
       "PowerShell(Get-Process *)",
       "Bash(git config *)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "Bash(git checkout *)"
     ]
   }
 }
