@@ -13,8 +13,12 @@
         </div>
 
         <div class="auth-card">
-            {% if error %}
-            <div class="auth-error">{{ error }}</div>
+            {% if errors %}
+                {% for error in errors %}
+                <div class="auth-error">{{ error }}</div>
+                {% endfor %}
+            {% elif error %}
+                <div class="auth-error">{{ error }}</div>
             {% endif %}
 
             <form method="POST" action="/register">
@@ -33,7 +37,7 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password"
-                           class="form-input" placeholder="Min. 8 characters"
+                           class="form-input" placeholder="Min. 6 characters"
                            required>
                 </div>
                 <button type="submit" class="btn-submit">Create account</button>

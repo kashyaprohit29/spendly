@@ -1,7 +1,8 @@
-from flask import Flask, render_template
-from database.db import get_db, init_db, seed_db
+from flask import Flask, render_template, request, redirect, url_for, session
+from database.db import get_db, init_db, seed_db, create_user
 
 app = Flask(__name__)
+app.secret_key = 'dev-secret-key-change-in-production'  # In production, use environment variable
 
 # Initialize database on startup
 with app.app_context():
@@ -22,6 +23,52 @@ def landing():
 @app.route("/register")
 def register():
     return render_template("register.html")
+
+
+@app.route("/register", methods=["POST"])
+def register_post():
+    """Handle registration form submission."""
+    # Get form data
+    name = request.form.get('name', '').strip()
+    email = request.form.get('email', '').strip()
+    password = request.form.get('password', '')
+
+    # Validate input
+    errors = []
+
+    if not name:
+        errors.append("Name is required")
+
+    if not email:
+        errors.append("Email is required")
+    elif '@' not in email:
+        errors.append("Please enter a valid email address")
+
+    if not password:
+        errors.append("Password is required")
+    elif len(password) < 6:
+        errors.append("Password must be at least 6 characters long")
+
+    # If there are validation errors, show form again
+    if errors:
+        return render_template("register.html", errors=errors), 400
+
+    # Attempt to create user
+    user, error = create_user(name, email, password)
+
+    if error:
+        if "Email already registered" in error:
+            errors.append("An account with this email already exists")
+        else:
+            errors.append("Registration failed. Please try again.")
+        return render_template("register.html", errors=errors), 400
+
+    # Log in the user (set session)
+    session['user_id'] = user['id']
+    session['user_name'] = user['name']
+
+    # Redirect to profile page
+    return redirect(url_for('profile'))
 
 
 @app.route("/login")
