@@ -99,3 +99,53 @@ def seed_db():
         conn.commit()
     finally:
         conn.close()
+
+
+def create_user(name, email, password):
+    """Create a new user with the given credentials."""
+    conn = get_db()
+    try:
+        # Validate input
+        if not name or not name.strip():
+            return None, "Name is required"
+
+        if not email or not email.strip():
+            return None, "Email is required"
+
+        if not password:
+            return None, "Password is required"
+
+        if len(password) < 6:
+            return None, "Password must be at least 6 characters long"
+
+        # Check if email already exists
+        existing = conn.execute(
+            'SELECT id FROM users WHERE email = ?', (email.strip(),)
+        ).fetchone()
+
+        if existing:
+            return None, "Email already registered"
+
+        # Hash the password
+        password_hash = generate_password_hash(password)
+
+        # Insert new user
+        cursor = conn.execute(
+            '''INSERT INTO users (name, email, password_hash)
+               VALUES (?, ?, ?)''',
+            (name.strip(), email.strip(), password_hash)
+        )
+        conn.commit()
+
+        # Get the newly created user
+        user_id = cursor.lastrowid
+        user = conn.execute(
+            'SELECT id, name, email, created_at FROM users WHERE id = ?',
+            (user_id,)
+        ).fetchone()
+
+        return dict(user), None
+    except Exception as e:
+        return None, str(e)
+    finally:
+        conn.close()
