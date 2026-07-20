@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from database.db import get_db, init_db, seed_db, create_user
+from flask import Flask, render_template, request, redirect, url_for, session , flash 
+from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'dev-secret-key-change-in-production'  # In production, use environment variable
@@ -68,12 +68,39 @@ def register_post():
     session['user_name'] = user['name']
 
     # Redirect to profile page
-    return redirect(url_for('profile'))
-
+    flash("Account created! Please sign in.", "success")
+    return redirect(url_for("login"))
 
 @app.route("/login")
 def login():
     return render_template("login.html")
+
+
+@app.route("/login", methods=["POST"])
+def login_post():
+    """Handle login form submission."""
+    # Get form data
+    email = request.form.get('email', '').strip()
+    password = request.form.get('password', '')
+
+    # Validate input
+    if not email:
+        return render_template("login.html", error="Email address is required"), 400
+
+    if not password:
+        return render_template("login.html", error="Password is required"), 400
+
+    # Get user by email
+    user = get_user_by_email(email)
+
+    if user and check_password_hash(user['password_hash'], password):
+        # Login successful - set session
+        session['user_id'] = user['id']
+        session['user_name'] = user['name']
+        return redirect(url_for('landing'))
+    else:
+        # Login failed - show generic error to prevent user enumeration
+        return render_template("login.html", error="Invalid email or password"), 400
 
 
 # ------------------------------------------------------------------ #
@@ -83,7 +110,10 @@ def login():
 
 @app.route("/logout")
 def logout():
-    return "Logout — coming in Step 3"
+    # Clear user session
+    session.pop('user_id', None)
+    session.pop('user_name', None)
+    return redirect(url_for('landing'))
 
 
 @app.route("/profile")

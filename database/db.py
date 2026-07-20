@@ -1,5 +1,5 @@
 import sqlite3
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import os
 
 def get_db():
@@ -147,5 +147,20 @@ def create_user(name, email, password):
         return dict(user), None
     except Exception as e:
         return None, str(e)
+    finally:
+        conn.close()
+
+
+def get_user_by_email(email):
+    """Get a user by their email address."""
+    conn = get_db()
+    try:
+        user = conn.execute(
+            'SELECT id, name, email, password_hash, created_at FROM users WHERE email = ?',
+            (email.strip(),)
+        ).fetchone()
+        return dict(user) if user else None
+    except Exception as e:
+        return None
     finally:
         conn.close()
