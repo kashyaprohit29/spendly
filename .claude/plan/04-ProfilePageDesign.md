@@ -64,7 +64,7 @@ Create a template that extends `base.html` with:
    - Category breakdown section with at least three categories
    - Navbar shows logged-in state (username + logout link)
    - No hex color values in profile.html (only CSS variables)
-6. Run tests: `pytest` to ensure no regressions
+
 
 ## Dependencies
 - Completion of Steps 1-3 (database, registration, login/logout)
