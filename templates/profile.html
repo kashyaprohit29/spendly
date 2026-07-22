@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Spendly{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- User Info Card -->
+    <div class="user-info-card">
+        <div class="avatar">{{ user.name[0] }}</div>
+        <div class="user-info">
+            <h2>{{ user.name }}</h2>
+            <p class="email">{{ user.email }}</p>
+            <p class="member-since">Member since: {{ user.member_since }}</p>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <h3>Total Spent</h3>
+            <p class="stat-value">${{ "%.2f"|format(stats.total_spent) }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Transactions</h3>
+            <p class="stat-value">{{ stats.transaction_count }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Top Category</h3>
+            <p class="stat-value">{{ stats.top_category }}</p>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <section class="transaction-history">
+        <h2>Recent Transactions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in recent_transactions %}
+                <tr>
+                    <td>{{ tx.date }}</td>
+                    <td>{{ tx.description }}</td>
+                    <td><span class="category-badge category-{{ tx.category|lower }}">{{ tx.category }}</span></td>
+                    <td>${{ "%.2f"|format(tx.amount) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Category Breakdown -->
+    <section class="category-breakdown">
+        <h2>Spending by Category</h2>
+        <ul class="category-list">
+            {% for category, total in category_totals.items() %}
+            <li>
+                <span class="category-name">{{ category }}</span>
+                <span class="category-amount">${{ "%.2f"|format(total) }}</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ (total / stats.total_spent * 100)|round(0) }}%"></div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}
