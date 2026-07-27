@@ -1,9 +1,32 @@
 {% extends "base.html" %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
 {% block title %}Profile - Spendly{% endblock %}
 
 {% block content %}
 <div class="profile-container">
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="filter-presets">
+            <a href="{{ url_for('profile') }}" class="filter-preset-btn {% if not date_from and not date_to %}active{% endif %}">All Time</a>
+            <a href="{{ url_for('profile', date_from=this_month_start, date_to=today) }}" class="filter-preset-btn {% if date_from == this_month_start and date_to == today %}active{% endif %}">This Month</a>
+            <a href="{{ url_for('profile', date_from=three_months_start, date_to=today) }}" class="filter-preset-btn {% if date_from == three_months_start and date_to == today %}active{% endif %}">Last 3 Months</a>
+            <a href="{{ url_for('profile', date_from=six_months_start, date_to=today) }}" class="filter-preset-btn {% if date_from == six_months_start and date_to == today %}active{% endif %}">Last 6 Months</a>
+        </div>
+
+        <div class="filter-custom">
+            <form method="GET" action="{{ url_for('profile') }}">
+                <input type="date" name="date_from" value="{{ date_from if date_from else '' }}" placeholder="Start date">
+                <input type="date" name="date_to" value="{{ date_to if date_to else '' }}" placeholder="End date">
+                <button type="submit" class="filter-btn-apply">Apply</button>
+            </form>
+        </div>
+    </div>
+
     <!-- User Info Card -->
     <div class="user-info-card">
         <div class="avatar">{{ user.name[0] }}</div>
