@@ -18,7 +18,7 @@
     <div class="stats-row">
         <div class="stat-card">
             <h3>Total Spent</h3>
-            <p class="stat-value">${{ "%.2f"|format(stats.total_spent) }}</p>
+            <p class="stat-value">₹{{ "%.2f"|format(stats.total_spent) }}</p>
         </div>
         <div class="stat-card">
             <h3>Transactions</h3>
@@ -48,7 +48,7 @@
                     <td>{{ tx.date }}</td>
                     <td>{{ tx.description }}</td>
                     <td><span class="category-badge category-{{ tx.category|lower }}">{{ tx.category }}</span></td>
-                    <td>${{ "%.2f"|format(tx.amount) }}</td>
+                    <td>₹{{ "%.2f"|format(tx.amount) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -62,7 +62,7 @@
             {% for category, total in category_totals.items() %}
             <li>
                 <span class="category-name">{{ category }}</span>
-                <span class="category-amount">${{ "%.2f"|format(total) }}</span>
+                <span class="category-amount">₹{{ "%.2f"|format(total) }}</span>
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: {{ (total / stats.total_spent * 100)|round(0) }}%"></div>
                 </div>
