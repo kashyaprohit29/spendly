@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, session , flash 
+from flask import Flask, render_template, request, redirect, url_for, session , flash
 from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, check_password_hash
+from database.queries import get_user_by_id, get_summary_stats, get_recent_transactions, get_category_breakdown
 
 app = Flask(__name__)
 app.secret_key = 'dev-secret-key-change-in-production'  # In production, use environment variable
@@ -124,40 +125,23 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
-    # Hardcoded data for profile page (to be replaced with DB queries in Step 5)
-    # Data matches seed_db() in database/db.py
-    user = {
-        "name": "Demo User",
-        "email": "demo@spendly.com",
-        "member_since": "January 2024"
-    }
+    user_id = session["user_id"]
 
-    stats = {
-        "total_spent": 257.50,
-        "transaction_count": 8,
-        "top_category": "Food"
-    }
+    # Get user data from database
+    user = get_user_by_id(user_id)
+    if not user:
+        # If user not found, redirect to login
+        session.clear()
+        return redirect(url_for("login"))
 
-    recent_transactions = [
-        {"date": "2026-07-08", "description": "Gift for friend", "category": "Other", "amount": 10.0},
-        {"date": "2026-07-07", "description": "New clothes", "category": "Shopping", "amount": 45.0},
-        {"date": "2026-07-06", "description": "Movie tickets", "category": "Entertainment", "amount": 30.0},
-        {"date": "2026-07-05", "description": "Groceries", "category": "Food", "amount": 25.0},
-        {"date": "2026-07-04", "description": "Pharmacy", "category": "Health", "amount": 20.0},
-        {"date": "2026-07-03", "description": "Electricity bill", "category": "Bills", "amount": 75.0},
-        {"date": "2026-07-02", "description": "Gas refill", "category": "Transport", "amount": 15.0},
-        {"date": "2026-07-01", "description": "Lunch at cafe", "category": "Food", "amount": 12.5}
-    ]
+    # Get statistics from database
+    stats = get_summary_stats(user_id)
 
-    category_totals = {
-        "Food": 37.5,
-        "Transport": 15.0,
-        "Bills": 75.0,
-        "Health": 20.0,
-        "Entertainment": 30.0,
-        "Shopping": 45.0,
-        "Other": 10.0
-    }
+    # Get recent transactions from database
+    recent_transactions = get_recent_transactions(user_id)
+
+    # Get category breakdown from dictionary expected by template
+    category_totals = get_category_breakdown(user_id)
 
     return render_template("profile.html",
                          user=user,
