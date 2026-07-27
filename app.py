@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session , flash
 from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, check_password_hash
 from database.queries import get_user_by_id, get_summary_stats, get_recent_transactions, get_category_breakdown
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'dev-secret-key-change-in-production'  # In production, use environment variable
@@ -134,20 +135,78 @@ def profile():
         session.clear()
         return redirect(url_for("login"))
 
-    # Get statistics from database
-    stats = get_summary_stats(user_id)
+    # Get date filter parameters from query string
+    date_from = request.args.get('date_from', '').strip()
+    date_to = request.args.get('date_to', '').strip()
 
-    # Get recent transactions from database
-    recent_transactions = get_recent_transactions(user_id)
+    # Validate date format (YYYY-MM-DD)
+    def is_valid_date(date_str):
+        try:
+            if date_str:
+                datetime.strptime(date_str, '%Y-%m-%d')
+                return True
+            return False
+        except ValueError:
+            return False
 
-    # Get category breakdown from dictionary expected by template
-    category_totals = get_category_breakdown(user_id)
+    # Validate dates
+    valid_date_from = date_from if is_valid_date(date_from) else None
+    valid_date_to = date_to if is_valid_date(date_to) else None
+
+    # If only one date is provided, ignore both (require both or neither)
+    if (valid_date_from and not valid_date_to) or (not valid_date_from and valid_date_to):
+        valid_date_from = None
+        valid_date_to = None
+    # If both dates are provided but invalid range, ignore both
+    elif valid_date_from and valid_date_to and valid_date_from > valid_date_to:
+        flash("Start date must be before end date.", "warning")
+        valid_date_from = None
+        valid_date_to = None
+
+    # Calculate preset date ranges for the filter UI
+    today = datetime.now().date()
+
+    # This month: first day of current month to today
+    this_month_start = today.replace(day=1)
+
+    # Last 3 months: first day of 3 months ago to today
+    if today.month <= 3:
+        three_months_month = today.month + 12 - 3
+        three_months_year = today.year - 1
+    else:
+        three_months_month = today.month - 3
+        three_months_year = today.year
+    three_months_start = today.replace(year=three_months_year, month=three_months_month, day=1)
+
+    # Last 6 months: first day of 6 months ago to today
+    if today.month <= 6:
+        six_months_month = today.month + 12 - 6
+        six_months_year = today.year - 1
+    else:
+        six_months_month = today.month - 6
+        six_months_year = today.year
+    six_months_start = today.replace(year=six_months_year, month=six_months_month, day=1)
+
+    # Get statistics from database with date filtering
+    stats = get_summary_stats(user_id, valid_date_from, valid_date_to)
+
+    # Get recent transactions from database with date filtering
+    recent_transactions = get_recent_transactions(user_id, 10, valid_date_from, valid_date_to)
+
+    # Get category breakdown from dictionary expected by template with date filtering
+    category_totals = get_category_breakdown(user_id, valid_date_from, valid_date_to)
 
     return render_template("profile.html",
                          user=user,
                          stats=stats,
                          recent_transactions=recent_transactions,
-                         category_totals=category_totals)
+                         category_totals=category_totals,
+                         date_from=valid_date_from,
+                         date_to=valid_date_to,
+                         today=today,
+                         this_month_start=this_month_start,
+                         three_months_start=three_months_start,
+                         six_months_start=six_months_start)
 
 
 @app.route("/expenses/add")
