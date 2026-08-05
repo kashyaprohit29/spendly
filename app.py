@@ -1,10 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for, session , flash
+from flask import Flask, render_template, request, redirect, url_for, session , flash, abort
 from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, check_password_hash
-from database.queries import get_user_by_id, get_summary_stats, get_recent_transactions, get_category_breakdown
+from database.queries import (
+    get_user_by_id, get_summary_stats, get_recent_transactions, get_category_breakdown,
+    get_expense_by_id, update_expense
+)
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'dev-secret-key-change-in-production'  # In production, use environment variable
+
+CATEGORIES = ["Food", "Transport", "Bills", "Health", "Entertainment", "Shopping", "Other"]
 
 # Initialize database on startup
 with app.app_context():
@@ -216,7 +221,76 @@ def add_expense():
 
 @app.route("/expenses/<int:id>/edit")
 def edit_expense(id):
-    return "Edit expense — coming in Step 8"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    expense = get_expense_by_id(id, session["user_id"])
+    if not expense:
+        abort(404)
+
+    return render_template("edit_expense.html", expense=expense, categories=CATEGORIES)
+
+
+@app.route("/expenses/<int:id>/edit", methods=["POST"])
+def edit_expense_post(id):
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    expense = get_expense_by_id(id, session["user_id"])
+    if not expense:
+        abort(404)
+
+    # Get form data
+    amount_raw = request.form.get('amount', '').strip()
+    category = request.form.get('category', '').strip()
+    date = request.form.get('date', '').strip()
+    description = request.form.get('description', '').strip()
+
+    # Validate input
+    errors = []
+
+    amount = None
+    if not amount_raw:
+        errors.append("Amount is required")
+    else:
+        try:
+            amount = float(amount_raw)
+            if amount <= 0:
+                errors.append("Amount must be greater than 0")
+        except ValueError:
+            errors.append("Amount must be a valid number")
+
+    if not category:
+        errors.append("Category is required")
+    elif category not in CATEGORIES:
+        errors.append("Please select a valid category")
+
+    if not date:
+        errors.append("Date is required")
+    else:
+        try:
+            datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            errors.append("Please enter a valid date")
+
+    if not description:
+        description = None
+
+    # If there are validation errors, show form again with submitted values
+    if errors:
+        submitted = {
+            'id': expense['id'],
+            'amount': amount_raw,
+            'category': category,
+            'date': date,
+            'description': description,
+        }
+        return render_template("edit_expense.html", expense=submitted,
+                               categories=CATEGORIES, errors=errors), 400
+
+    update_expense(id, session["user_id"], amount, category, date, description)
+
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:id>/delete")

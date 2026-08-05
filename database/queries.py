@@ -118,13 +118,13 @@ def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
         date_to (str, optional): End date in YYYY-MM-DD format (inclusive)
 
     Returns:
-        list: List of transaction dicts with keys date, description, category, amount
+        list: List of transaction dicts with keys id, date, description, category, amount
     """
     conn = get_db()
     try:
         # Build query with optional date filtering
         query = '''
-            SELECT date, description, category, amount
+            SELECT id, date, description, category, amount
             FROM expenses
             WHERE user_id = ?
         '''
@@ -143,6 +143,59 @@ def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
         transactions = conn.execute(query, params).fetchall()
 
         return [dict(tx) for tx in transactions]
+    finally:
+        conn.close()
+
+
+def get_expense_by_id(expense_id, user_id):
+    """
+    Get a single expense by ID, scoped to the owning user.
+
+    Args:
+        expense_id (int): The expense's ID
+        user_id (int): The ID of the user who must own the expense
+
+    Returns:
+        dict: Expense data with keys id, user_id, amount, category, date, description
+              or None if not found or not owned by this user
+    """
+    conn = get_db()
+    try:
+        expense = conn.execute(
+            '''SELECT id, user_id, amount, category, date, description
+               FROM expenses WHERE id = ? AND user_id = ?''',
+            (expense_id, user_id)
+        ).fetchone()
+
+        return dict(expense) if expense else None
+    finally:
+        conn.close()
+
+
+def update_expense(expense_id, user_id, amount, category, date, description):
+    """
+    Update an existing expense, scoped to the owning user.
+
+    Args:
+        expense_id (int): The expense's ID
+        user_id (int): The ID of the user who must own the expense
+        amount (float): The updated amount
+        category (str): The updated category
+        date (str): The updated date in YYYY-MM-DD format
+        description (str or None): The updated description
+
+    Returns:
+        None
+    """
+    conn = get_db()
+    try:
+        conn.execute(
+            '''UPDATE expenses
+               SET amount = ?, category = ?, date = ?, description = ?
+               WHERE id = ? AND user_id = ?''',
+            (amount, category, date, description, expense_id, user_id)
+        )
+        conn.commit()
     finally:
         conn.close()
 
