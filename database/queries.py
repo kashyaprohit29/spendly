@@ -200,6 +200,28 @@ def update_expense(expense_id, user_id, amount, category, date, description):
         conn.close()
 
 
+def delete_expense(expense_id, user_id):
+    """
+    Delete an expense, scoped to the owning user.
+
+    Args:
+        expense_id (int): The expense's ID
+        user_id (int): The ID of the user who must own the expense
+
+    Returns:
+        None
+    """
+    conn = get_db()
+    try:
+        conn.execute(
+            'DELETE FROM expenses WHERE id = ? AND user_id = ?',
+            (expense_id, user_id)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def get_category_breakdown(user_id, date_from=None, date_to=None):
     """
     Get spending breakdown by category for a user.
